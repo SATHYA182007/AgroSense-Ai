@@ -1,0 +1,197 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          String    @default("FARMER")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  farmerProfile FarmerProfile?
+  expertProfile ExpertProfile?
+  
+  notifications Notification[]
+  chatbotLogs   ChatbotLog[]
+  supportTickets SupportTicket[]
+}
+
+model FarmerProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  district        String?
+  state           String?
+  language        String   @default("English")
+  
+  farms           Farm[]
+  onboardingDone  Boolean  @default(false)
+}
+
+model ExpertProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  specialization  String?
+  verificationId  String?
+  isVerified      Boolean  @default(false)
+  
+  advisories      ExpertAdvisory[]
+}
+
+model Farm {
+  id              String   @id @default(uuid())
+  farmerId        String
+  farmerProfile   FarmerProfile @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  
+  name            String
+  location        String?  // Coordinates or address
+  size            Float?   // In acres
+  soilType        String?
+  irrigationType  String?
+  waterSource     String?
+  crops           String? 
+  
+  expenses        FarmExpense[]
+  tasks           FarmTask[]
+  riskReports     ClimateRiskReport[]
+  diseaseDetections DiseaseDetection[]
+  irrigationLogs  IrrigationRecord[]
+}
+
+model ClimateRiskReport {
+  id              String   @id @default(uuid())
+  farmId          String
+  farm            Farm     @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  
+  riskScore       Int      // 0-100
+  droughtProb     Float
+  floodProb       Float
+  heatStressProb  Float
+  summary         String
+  createdAt       DateTime @default(now())
+}
+
+model DiseaseDetection {
+  id              String   @id @default(uuid())
+  farmId          String
+  farm            Farm     @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  
+  imageUrl        String
+  diseaseName     String?
+  confidence      Float?
+  severity        String?  // Low, Medium, High
+  treatment       String?
+  createdAt       DateTime @default(now())
+}
+
+model FarmExpense {
+  id              String   @id @default(uuid())
+  farmId          String
+  farm            Farm     @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  
+  category        String   // SEED, FERTILIZER, LABOR, etc.
+  amount          Float
+  description     String?
+  date            DateTime @default(now())
+}
+
+model FarmTask {
+  id              String   @id @default(uuid())
+  farmId          String
+  farm            Farm     @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  
+  title           String
+  description     String?
+  dueDate         DateTime
+  isCompleted     Boolean  @default(false)
+  category        String?
+  createdAt       DateTime @default(now())
+}
+
+model MandiPrice {
+  id              String   @id @default(uuid())
+  crop            String
+  market          String
+  price           Float
+  currency        String   @default("INR")
+  trend           String?  // UP, DOWN, STABLE
+  date            DateTime @default(now())
+}
+
+model IrrigationRecord {
+  id              String   @id @default(uuid())
+  farmId          String
+  farm            Farm     @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  
+  waterAmount     Float?
+  duration        Int?     // In minutes
+  status          String?
+  createdAt       DateTime @default(now())
+}
+
+model Notification {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title           String
+  message         String
+  isRead          Boolean  @default(false)
+  type            String?  // RISK, DISEASE, TASK, etc.
+  createdAt       DateTime @default(now())
+}
+
+model ChatbotLog {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  query           String
+  response        String
+  createdAt       DateTime @default(now())
+}
+
+model KnowledgeArticle {
+  id              String   @id @default(uuid())
+  title           String
+  content         String
+  category        String
+  authorId        String?
+  createdAt       DateTime @default(now())
+}
+
+model SupportTicket {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  subject         String
+  description     String
+  status          String   @default("OPEN") // OPEN, CLOSED
+  createdAt       DateTime @default(now())
+}
+
+model ExpertAdvisory {
+  id              String   @id @default(uuid())
+  expertId        String
+  expertProfile   ExpertProfile @relation(fields: [expertId], references: [id], onDelete: Cascade)
+  
+  region          String?
+  crop            String?
+  advisory        String
+  createdAt       DateTime @default(now())
+}

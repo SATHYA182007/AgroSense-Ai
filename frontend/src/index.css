@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #10B981; /* Emerald 500 */
+  --color-brand-secondary: #059669; /* Emerald 600 */
+  --color-brand-dark: #064E3B; /* Emerald 900 */
+  --color-brand-light: #D1FAE5; /* Emerald 100 */
+  --color-brand-background: #F0FDF4; /* Green 50 */
+  --color-brand-accent: #F59E0B; /* Amber 500 for alerts */
+  
+  --font-sans: "Inter", "Outfit", sans-serif;
+  
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-premium-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+@layer base {
+  body {
+    @apply bg-brand-background text-slate-900 antialiased;
+  }
+}
+
+/* Glassmorphism Classes */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-effect-dark {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Hover Shine Effect */
+.shine-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-hover::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  transition: all 0.7s;
+  pointer-events: none;
+}
+
+.shine-hover:hover::after {
+  left: 100%;
+  top: 100%;
+}
